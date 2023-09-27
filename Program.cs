@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace ShoppingBasket
 {
@@ -6,9 +7,10 @@ namespace ShoppingBasket
     {
         static void Main(string[] args)
         {
-            List<Product> products = createListFromFile("list.txt");
+            double limitWeight = 20.0;
 
-            uint limitWeight = 20;
+            List<Product> products = createListFromFile("list.txt", limitWeight);
+            
             List<List<Product>> baskets = calculateBaskets(
                 products.OrderByDescending(p => p.Weight).ToList(),
                 limitWeight
@@ -23,7 +25,7 @@ namespace ShoppingBasket
             Console.ReadKey();
         }
 
-        static List<Product> createListFromFile(string filename) {
+        static List<Product> createListFromFile(string filename, double limitWeight) {
             List<Product> products = new List<Product>();
             string[] lines = File.ReadAllLines(filename);
             for (uint i = 0; i < lines.Length; i++) {
@@ -32,9 +34,14 @@ namespace ShoppingBasket
                 if (args.Length != 2) 
                     continue;
 
-                uint weight;
-                if (!uint.TryParse(args[1], out weight)) 
+                double weight;
+                if (!double.TryParse(args[1], NumberStyles.Any, CultureInfo.InvariantCulture, out weight)) 
                     continue;
+
+                if (weight > limitWeight) {
+                    Console.WriteLine($"Warning: Product '{args[0]}' not added as its weight ({weight} kg) is over limit of {limitWeight} kg");
+                    continue;
+                }
 
                 Product product = new Product(i, args[0], weight);
                 products.Add(product);
@@ -42,12 +49,12 @@ namespace ShoppingBasket
             return products;
         }
 
-        static List<List<Product>> calculateBaskets(List<Product> products, uint limitWeight) {
+        static List<List<Product>> calculateBaskets(List<Product> products, double limitWeight) {
             List<List<Product>> baskets = new List<List<Product>>();
             while (products.Count > 0)
             {
                 int i = 0;
-                uint totalWeight = 0;
+                double totalWeight = 0;
                 List<Product> currentBasket = new List<Product>();
 
                 while (totalWeight <= limitWeight && i < products.Count)

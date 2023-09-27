@@ -10,14 +10,12 @@ namespace ShoppingBasket
     {
         public uint Id {  get; set; }
         public string Name { get; set; }
-        public uint Weight { get; set; }
+        public double Weight { get; set; }
 
-        public Product(uint id, string name, uint weight) {
+        public Product(uint id, string name, double weight) {
             Id = id;
             Name = name;
             Weight = weight;
         }
-
-        public Product() { }
     }
 }
